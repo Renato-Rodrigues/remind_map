@@ -1,2 +1,2 @@
 # remind_map
-SCript to create visualization of REMIND regions
+Script to create visualization of REMIND regions
