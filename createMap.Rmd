@@ -17,9 +17,9 @@ library(mip)
 library(highcharter)
 library(dplyr)
 library(RColorBrewer)
+```
 
-out <- NULL
-
+```{r creating_or_loading_map_files, echo=FALSE, include=FALSE}
 #########################
 ##### Creating maps #####
 #########################
@@ -48,6 +48,54 @@ load("maps/WorldMap.RData") #worldMapMap
 #load(system.file("extdata","worldMapMap.RData",package = "madrat"))
 load("maps/EuropeMap.RData") #europeMap
 #load(system.file("extdata","EuropeMap.RData",package = "madrat"))
+```
+
+# H12 map {.tabset}
+
+```{r creating_H12_maps, echo=FALSE, include=FALSE}
+
+# loading region mapping
+regionMappingFile <- "mappings/regionmappingH12.csv"
+regionMapping <- toolGetMapping(regionMappingFile, type = "regional")
+
+# adding kosovo
+regionMapping <- rbind(regionMapping,data.frame(CountryCode = "KOS", X = "Kosovo", RegionCode = regionMapping[which(regionMapping$CountryCode=="SRB"),]$RegionCode))
+
+# loading colors
+colors <- plotstyle(unique(regionMapping$RegionCode))
+
+series <- regionMapping %>% 
+  group_by(name = RegionCode) %>% 
+  do(data = list_parse(select(., CountryCode))) %>%
+  ungroup() 
+
+series$color <- colors[series$name]
+
+out <- NULL
+
+out$H12$world <- highchart(type = "map") %>% 
+  hc_plotOptions(map = list(allAreas = FALSE, joinBy = c("iso-a3", "CountryCode"), mapData = worldMap, borderColor = "#FAFAFA", borderWidth = 0.03)) %>% 
+  hc_add_series_list(series) %>% 
+  hc_tooltip(useHTML = TRUE, headerFormat = "",
+             pointFormat = "Region: {point.series.name}<br>Country: {point.name}") %>% 
+  hc_mapNavigation(enabled = TRUE)
+
+```
+
+## World map
+
+```{r, echo=FALSE}
+   #aesthetics
+    out$H12$world %>%
+  hc_exporting(enabled=TRUE)
+
+```  
+
+
+# EU21 maps {.tabset}
+
+
+```{r creating_EU21_maps, echo=FALSE, include=FALSE}
 
 regionMappingFile <- "mappings/regionmapping_21_EU11.csv"
 
@@ -78,20 +126,19 @@ series <- regionMapping %>%
 
 series$color <- colors[series$name]
 
-out$maps$world <- highchart(type = "map") %>% 
+
+out$EU21$world <- highchart(type = "map") %>% 
   hc_plotOptions(map = list(allAreas = FALSE, joinBy = c("iso-a3", "CountryCode"), mapData = worldMap, borderColor = "#FAFAFA", borderWidth = 0.03)) %>% 
   hc_add_series_list(series) %>% 
   hc_tooltip(useHTML = TRUE, headerFormat = "",
              pointFormat = "Region: {point.series.name}<br>Country: {point.name}") %>% 
   hc_mapNavigation(enabled = TRUE) 
 
-out$maps$europe <- highchart(type = "map") %>% 
+out$EU21$europe <- highchart(type = "map") %>% 
   hc_plotOptions(map = list(allAreas = FALSE, joinBy = c("iso-a3", "CountryCode"), mapData = europeMap, borderColor = "#FAFAFA", borderWidth = 0.03)) %>% 
   hc_add_series_list(series) %>% 
   hc_tooltip(useHTML = TRUE, headerFormat = "", pointFormat = "Region: {point.series.name}<br>Country: {point.name}") %>% 
   hc_mapNavigation(enabled = TRUE)
-
-
 
 
 #NEU
@@ -113,14 +160,14 @@ series <- regionMapping %>%
 series$color <- colors[series$name]
 
 
-out$maps$worldNEU <- highchart(type = "map") %>% 
+out$EU21$worldNEU <- highchart(type = "map") %>% 
   hc_plotOptions(map = list(allAreas = FALSE, joinBy = c("iso-a3", "CountryCode"), mapData = worldMap, borderColor = "#FAFAFA", borderWidth = 0.03)) %>% 
   hc_add_series_list(series) %>% 
   hc_tooltip(useHTML = TRUE, headerFormat = "",
              pointFormat = "Region: {point.series.name}<br>Country: {point.name}") %>% 
   hc_mapNavigation(enabled = TRUE) 
 
-out$maps$NEU <- highchart(type = "map") %>% 
+out$EU21$NEU <- highchart(type = "map") %>% 
   hc_plotOptions(map = list(allAreas = FALSE, joinBy = c("iso-a3", "CountryCode"), mapData = europeMap, borderColor = "#FAFAFA", borderWidth = 0.03)) %>% 
   hc_add_series_list(series) %>% 
   hc_tooltip(useHTML = TRUE, headerFormat = "", pointFormat = "Region: {point.series.name}<br>Country: {point.name}") %>% 
@@ -132,29 +179,29 @@ out$maps$NEU <- highchart(type = "map") %>%
 
 ```
 
-# World map
+## World map
 
 ```{r, echo=FALSE}
    #aesthetics
-    out$maps$world %>%
+    out$EU21$world %>%
   hc_exporting(enabled=TRUE)
 
 ```  
 
-# EU map
+## EU map
 
 ```{r, echo=FALSE}
    #aesthetics
-    out$maps$europe %>%
+    out$EU21$europe %>%
   hc_exporting(enabled=TRUE)
 
 ```  
 
-# NEU map
+## NEU map
 
 ```{r, echo=FALSE}
    #aesthetics
-    out$maps$worldNEU %>%
+    out$EU21$worldNEU %>%
   hc_exporting(enabled=TRUE)
 
 ```  
